@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { PRICING as DEFAULT_PRICING, SHIPPING_COSTS as DEFAULT_SHIPPING_COSTS, MIN_ORDER_PRICE as DEFAULT_MIN_ORDER_PRICE } from "@/lib/pricing";
 import type { PricingConfig } from "@/types";
@@ -30,24 +29,26 @@ export function PricingProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Listen to changes in settings/pricing in real-time so any admin updates reflect immediately
-    const docRef = doc(db, "settings", "pricing");
-    
-    const unsubscribe = onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        if (data.pricing) setPricing(data.pricing);
-        if (data.shippingCosts) setShippingCosts(data.shippingCosts as Record<string, ShippingInfo>);
-        if (data.minOrderPrice !== undefined) setMinOrderPrice(data.minOrderPrice);
+    // Fetch pricing configuration from our internal API to bypass Firestore security rules
+    const loadPricing = async () => {
+      try {
+        const res = await fetch("/api/pricing");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.exists) {
+            if (data.pricing) setPricing(data.pricing);
+            if (data.shippingCosts) setShippingCosts(data.shippingCosts as Record<string, ShippingInfo>);
+            if (data.minOrderPrice !== undefined) setMinOrderPrice(data.minOrderPrice);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading pricing config via API:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, (error) => {
-      console.error("Error loading pricing config:", error);
-      // Fall back to defaults on error
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    loadPricing();
   }, []);
 
   return (
