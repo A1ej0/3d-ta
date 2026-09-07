@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PRICING } from "@/lib/pricing";
 import { generateIntegritySignature, generateReference } from "@/lib/wompi";
 import type { Technology } from "@/types";
-import { adminDb } from "@/lib/firebase-admin";
+// import { adminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
@@ -92,32 +92,32 @@ export async function POST(request: Request) {
 
     // Save pending order metadata to Firestore (keyed by reference)
     // The Wompi webhook will use this to create the final order
-    try {
-      if (adminDb) {
-        await adminDb.collection("pending_orders").doc(reference).set({
-          fileUrl,
-          fileName,
-          volume: volume.toString(),
-          technology,
-          material,
-          materialLabel: materialInfo.label,
-          customerName,
-          customerEmail,
-          shippingMethod,
-          totalAmountCOP,
-          thumbnailUrl: thumbnailUrl || "",
-          userId: userId || "",
-          userPhone: userPhone || "",
-          createdAt: new Date(),
-        });
-        console.log(`Pending order saved for reference: ${reference}`);
-      } else {
-        console.error("adminDb is null. Could not save pending order.");
-      }
-    } catch (err) {
-      console.error("Error saving pending order to Firestore:", err);
-      // Don't fail the checkout if Firestore save fails
-    }
+    // try {
+    //   if (adminDb) {
+    //     await adminDb.collection("pending_orders").doc(reference).set({
+    //       fileUrl,
+    //       fileName,
+    //       volume: volume.toString(),
+    //       technology,
+    //       material,
+    //       materialLabel: materialInfo.label,
+    //       customerName,
+    //       customerEmail,
+    //       shippingMethod,
+    //       totalAmountCOP,
+    //       thumbnailUrl: thumbnailUrl || "",
+    //       userId: userId || "",
+    //       userPhone: userPhone || "",
+    //       createdAt: new Date(),
+    //     });
+    //     console.log(`Pending order saved for reference: ${reference}`);
+    //   } else {
+    //     console.error("adminDb is null. Could not save pending order.");
+    //   }
+    // } catch (err) {
+    //   console.error("Error saving pending order to Firestore:", err);
+    //   // Don't fail the checkout if Firestore save fails
+    // }
 
     return NextResponse.json({
       reference,
