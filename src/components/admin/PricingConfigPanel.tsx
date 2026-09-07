@@ -56,17 +56,26 @@ export default function PricingConfigPanel() {
     setSaving(true);
     setSuccess(false);
     try {
-      await setDoc(doc(db, "settings", "pricing"), {
-        pricing: editedPricing,
-        shippingCosts: editedShipping,
-        minOrderPrice: editedMinOrder,
-        updatedAt: new Date(),
+      const res = await fetch("/api/admin/pricing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pricing: editedPricing,
+          shippingCosts: editedShipping,
+          minOrderPrice: editedMinOrder,
+        }),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error al guardar la configuración");
+      }
+
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error saving pricing config:", e);
-      alert("Error al guardar la configuración");
+      alert(e.message || "Error al guardar la configuración");
     }
     setSaving(false);
   };
