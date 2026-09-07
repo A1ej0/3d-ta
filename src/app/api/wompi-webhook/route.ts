@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { adminDb } from "@/lib/firebase-admin";
+import { restGetDocument, restAddDocument } from "@/lib/firebase-rest";
 
 // Check if Resend API key is configured
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
@@ -63,23 +63,18 @@ export async function POST(request: Request) {
 
       // Check if we already have order metadata stored (from checkout route)
       try {
-        if (adminDb) {
-          // Query Firestore for a pending order with this reference
-          const pendingRef = adminDb.collection("pending_orders").doc(reference);
-          const pendingSnap = await pendingRef.get();
-          
-          if (pendingSnap.exists) {
-            const pending = pendingSnap.data();
-            driveUrl = pending?.fileUrl || "";
-            thumbnailUrl = pending?.thumbnailUrl || "";
-            fileName = pending?.fileName || "";
-            technology = pending?.technology || "";
-            materialStr = pending?.material || "";
-            volume = parseFloat(pending?.volume || "0");
-            deliveryType = SHIPPING_MAP[pending?.shippingMethod || "recogida"] || "Personal";
-            userId = pending?.userId || "";
-            userPhone = pending?.userPhone || "";
-          }
+        const pending = await restGetDocument("pending_orders", reference);
+        
+        if (pending) {
+          driveUrl = pending?.fileUrl || "";
+          thumbnailUrl = pending?.thumbnailUrl || "";
+          fileName = pending?.fileName || "";
+          technology = pending?.technology || "";
+          materialStr = pending?.material || "";
+          volume = parseFloat(pending?.volume || "0");
+          deliveryType = SHIPPING_MAP[pending?.shippingMethod || "recogida"] || "Personal";
+          userId = pending?.userId || "";
+          userPhone = pending?.userPhone || "";
         }
       } catch (err) {
         console.warn("Could not fetch pending order metadata:", err);
@@ -107,14 +102,10 @@ export async function POST(request: Request) {
           paymentMethod: paymentMethodType,
         };
 
-        if (adminDb) {
-          await adminDb.collection("orders").add(orderData);
-          console.log(`Order created in Firestore for reference ${reference}`);
-        } else {
-          console.error("adminDb is null. Could not create order in Firestore.");
-        }
+        await restAddDocument("orders", orderData);
+        console.log(`Order created in Firestore via REST for reference ${reference}`);
       } catch (err) {
-        console.error("Error creating order in Firestore:", err);
+        console.error("Error creating order in Firestore via REST:", err);
       }
 
       const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
