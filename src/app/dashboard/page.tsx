@@ -7,6 +7,7 @@ import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import OrderDetailModal from "@/components/dashboard/OrderDetailModal";
 import type { Order } from "@/types";
 import { useRouter } from "next/navigation";
@@ -27,8 +28,9 @@ export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"perfil" | "pedidos">("perfil");
   const [phone, setPhone] = useState("");
-  const [savingPhone, setSavingPhone] = useState(false);
-  const [phoneSaved, setPhoneSaved] = useState(false);
+  const [address, setAddress] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -40,10 +42,11 @@ export default function DashboardPage() {
     }
   }, [loading, user, router]);
 
-  // Set phone from profile
+  // Set profile data
   useEffect(() => {
     if (userProfile) {
       setPhone(userProfile.phone || "");
+      setAddress(userProfile.address || "");
     }
   }, [userProfile]);
 
@@ -78,18 +81,21 @@ export default function DashboardPage() {
     setLoadingOrders(false);
   };
 
-  const handleSavePhone = async () => {
+  const handleSaveProfile = async () => {
     if (!user) return;
-    setSavingPhone(true);
+    setSavingProfile(true);
     try {
-      await updateDoc(doc(db, "users", user.uid), { phone: phone.trim() });
+      await updateDoc(doc(db, "users", user.uid), { 
+        phone: phone.trim(),
+        address: address.trim(),
+      });
       await refreshProfile();
-      setPhoneSaved(true);
-      setTimeout(() => setPhoneSaved(false), 3000);
+      setProfileSaved(true);
+      setTimeout(() => setProfileSaved(false), 3000);
     } catch (error) {
-      console.error("Error saving phone:", error);
+      console.error("Error saving profile:", error);
     }
-    setSavingPhone(false);
+    setSavingProfile(false);
   };
 
   if (loading || !user) {
@@ -183,17 +189,36 @@ export default function DashboardPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   className="bg-white/5 border-white/10 h-10 text-sm flex-1"
                 />
-                <Button
-                  onClick={handleSavePhone}
-                  disabled={savingPhone}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white border-0 h-10"
-                >
-                  {savingPhone ? "Guardando..." : phoneSaved ? "✓ Guardado" : "Guardar"}
-                </Button>
               </div>
               <p className="text-xs text-muted-foreground">
                 Incluye el código de país (ej: 573001234567)
               </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="address" className="text-xs text-muted-foreground">
+                Dirección de envío por defecto
+              </Label>
+              <Textarea
+                id="address"
+                placeholder="Ej: Calle 123 # 45-67, Apto 802, Conjunto Los Pinos, Bogotá. (Incluir barrio e indicaciones)"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="bg-white/5 border-white/10 text-sm min-h-[80px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                Se autocompletará automáticamente en tus futuras compras.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button
+                onClick={handleSaveProfile}
+                disabled={savingProfile}
+                className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white border-0 h-10 w-full sm:w-auto px-8"
+              >
+                {savingProfile ? "Guardando..." : profileSaved ? "✓ Guardado" : "Guardar Cambios"}
+              </Button>
             </div>
           </div>
         )}

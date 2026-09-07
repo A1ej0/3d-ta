@@ -60,6 +60,7 @@ export async function POST(request: Request) {
       let deliveryType = "Personal";
       let userId = "";
       let userPhone = "";
+      let shippingAddress = "";
 
       // Check if we already have order metadata stored (from checkout route)
       try {
@@ -75,6 +76,7 @@ export async function POST(request: Request) {
           deliveryType = SHIPPING_MAP[pending?.shippingMethod || "recogida"] || "Personal";
           userId = pending?.userId || "";
           userPhone = pending?.userPhone || "";
+          shippingAddress = pending?.shippingAddress || "";
         }
       } catch (err) {
         console.warn("Could not fetch pending order metadata:", err);
@@ -95,6 +97,7 @@ export async function POST(request: Request) {
           volume: volume,
           totalPrice: amountCOP,
           deliveryType: deliveryType,
+          shippingAddress: shippingAddress,
           status: "Recibido",
           adminNotes: "",
           createdAt: new Date(),
@@ -128,6 +131,8 @@ export async function POST(request: Request) {
                   <p style="margin: 5px 0;"><strong>Valor pagado:</strong> ${formattedAmount}</p>
                   <p style="margin: 5px 0;"><strong>Correo del cliente:</strong> ${customerEmail}</p>
                   <p style="margin: 5px 0;"><strong>Método de pago:</strong> ${paymentMethodType}</p>
+                  <p style="margin: 5px 0;"><strong>Tipo de entrega:</strong> ${deliveryType}</p>
+                  ${shippingAddress ? `<p style="margin: 5px 0;"><strong>Dirección:</strong> ${shippingAddress}</p>` : ""}
                   ${fileName ? `<p style="margin: 5px 0;"><strong>Archivo:</strong> ${fileName}</p>` : ""}
                   ${technology ? `<p style="margin: 5px 0;"><strong>Tecnología:</strong> ${technology}</p>` : ""}
                 </div>

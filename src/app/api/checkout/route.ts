@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PRICING } from "@/lib/pricing";
 import { generateIntegritySignature, generateReference } from "@/lib/wompi";
 import type { Technology } from "@/types";
-import { restSetDocument } from "@/lib/firebase-rest";
+import { restSetDocument, restUpdateDocument } from "@/lib/firebase-rest";
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +21,7 @@ export async function POST(request: Request) {
       thumbnailUrl,
       userId,
       userPhone,
+      shippingAddress,
     } = body;
 
     // Validate required fields
@@ -124,9 +125,19 @@ export async function POST(request: Request) {
         thumbnailUrl: thumbnailUrl || "",
         userId: userId || "",
         userPhone: userPhone || "",
+        shippingAddress: shippingAddress || "",
         createdAt: new Date(),
       });
       console.log(`Pending order saved for reference: ${reference}`);
+
+      // Auto-save shipping address to user profile if logged in and provided
+      if (userId && shippingAddress) {
+        try {
+          await restUpdateDocument("users", userId, { address: shippingAddress });
+        } catch (updateErr) {
+          console.warn("Failed to auto-save address to user profile", updateErr);
+        }
+      }
     } catch (err) {
       console.error("Error saving pending order via REST:", err);
     }

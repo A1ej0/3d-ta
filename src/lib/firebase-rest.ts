@@ -99,6 +99,32 @@ export async function restSetDocument(collection: string, docId: string, data: R
   return await response.json();
 }
 
+export async function restUpdateDocument(collection: string, docId: string, data: Record<string, any>) {
+  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const token = await getFirestoreToken();
+  const url = new URL(`https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}/${docId}`);
+  
+  // Add updateMask for partial updates
+  for (const key of Object.keys(data)) {
+    url.searchParams.append('updateMask.fieldPaths', key);
+  }
+
+  const response = await fetch(url.toString(), {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(toFirestoreDocument(data)),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Firestore REST API Error: ${errorText}`);
+  }
+  return await response.json();
+}
+
 export async function restAddDocument(collection: string, data: Record<string, any>) {
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const token = await getFirestoreToken();

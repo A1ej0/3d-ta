@@ -90,6 +90,7 @@ export interface UserProfile {
   displayName: string;
   photoURL: string;
   phone: string;
+  address?: string;
   role: UserRole;
   createdAt: Date;
 }
@@ -112,6 +113,7 @@ export interface Order {
   volume: number;
   totalPrice: number;
   deliveryType: DeliveryType;
+  shippingAddress?: string;
   status: OrderStatus;
   adminNotes: string;
   createdAt: Date;
