@@ -108,10 +108,26 @@ export default function PriceSummary({
   // Capture thumbnail from the 3D canvas
   const captureThumbnail = (): string => {
     try {
-      const canvas = document.querySelector(".canvas-container canvas") as HTMLCanvasElement;
-      if (!canvas) return "";
-      // Use low quality JPEG to keep string size small for Firestore (approx 10-20KB)
-      return canvas.toDataURL("image/jpeg", 0.4);
+      const glCanvas = document.querySelector(".canvas-container canvas") as HTMLCanvasElement;
+      if (!glCanvas) return "";
+      
+      // Create a temporary 2D canvas to merge the transparent WebGL canvas with a solid background
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = glCanvas.width;
+      tempCanvas.height = glCanvas.height;
+      
+      const ctx = tempCanvas.getContext("2d");
+      if (!ctx) return "";
+      
+      // Fill with a dark background to match our theme (so transparent areas aren't black)
+      ctx.fillStyle = "#1e1e24"; // Or any color that looks good
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+      
+      // Draw the WebGL canvas on top
+      ctx.drawImage(glCanvas, 0, 0);
+      
+      // Export as a low-quality JPEG to keep the Base64 string small
+      return tempCanvas.toDataURL("image/jpeg", 0.4);
     } catch {
       console.warn("Could not capture thumbnail");
       return "";
