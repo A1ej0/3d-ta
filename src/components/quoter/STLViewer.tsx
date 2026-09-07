@@ -48,7 +48,7 @@ export default function STLViewer({ geometry }: STLViewerProps) {
         camera={{ position: [3, 2, 4], fov: 50 }}
         dpr={[1, 2]}
         shadows
-        gl={{ antialias: true, alpha: true }}
+        gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
         style={{ background: "rgba(0,0,0,0.2)" }}
       >
         <ambientLight intensity={0.4} />
