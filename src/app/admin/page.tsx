@@ -363,6 +363,9 @@ export default function AdminPage() {
                               <p><span className="font-medium text-foreground">Tecnología:</span> {order.technology} — {order.material}</p>
                               <p><span className="font-medium text-foreground">Volumen:</span> {order.volume?.toFixed(2)} cm³</p>
                               <p><span className="font-medium text-foreground">Fecha:</span> {order.createdAt instanceof Date ? order.createdAt.toLocaleString("es-CO") : "—"}</p>
+                              {order.shippingAddress && (
+                                <p className="mt-2 pt-2 border-t border-white/5"><span className="font-medium text-foreground block mb-0.5">Dirección de envío:</span> {order.shippingAddress}</p>
+                              )}
                             </div>
                           </div>
 

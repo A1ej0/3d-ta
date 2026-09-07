@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           displayName: data.displayName,
           photoURL: data.photoURL,
           phone: data.phone || "",
+          address: data.address || "",
           role: data.role || "user",
           createdAt: data.createdAt?.toDate?.() || new Date(),
         });
@@ -81,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           displayName: firebaseUser.displayName || "",
           photoURL: firebaseUser.photoURL || "",
           phone: "",
+          address: "",
           role: "user",
           createdAt: serverTimestamp(),
         };
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           displayName: firebaseUser.displayName || "",
           photoURL: firebaseUser.photoURL || "",
           phone: "",
+          address: "",
           role: "user",
           createdAt: new Date(),
         });
