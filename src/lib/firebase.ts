@@ -1,6 +1,6 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import { getFirestore, initializeFirestore, type Firestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -35,7 +35,15 @@ export function getFirebaseAuth(): Auth {
 
 export function getFirebaseDb(): Firestore {
   if (!_db) {
-    _db = getFirestore(getApp());
+    const app = getApp();
+    try {
+      // Forzar Long Polling suele solucionar errores de CORS/Safari en entornos locales como lvh.me
+      _db = initializeFirestore(app, {
+        experimentalForceLongPolling: true
+      });
+    } catch (e) {
+      _db = getFirestore(app);
+    }
   }
   return _db;
 }
@@ -44,4 +52,14 @@ export const googleProvider = new GoogleAuthProvider();
 
 // Convenience getters (will throw if Firebase is not configured)
 export const auth = typeof window !== "undefined" && firebaseConfig.apiKey ? getAuth(getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]) : (null as unknown as Auth);
-export const db = typeof window !== "undefined" && firebaseConfig.apiKey ? getFirestore(getApps().length === 0 ? getApps()[0] : getApps()[0]) : (null as unknown as Firestore);
+
+export const db = typeof window !== "undefined" && firebaseConfig.apiKey 
+  ? (function() {
+      const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+      try {
+        return initializeFirestore(app, { experimentalForceLongPolling: true });
+      } catch (e) {
+        return getFirestore(app);
+      }
+    })() 
+  : (null as unknown as Firestore);
