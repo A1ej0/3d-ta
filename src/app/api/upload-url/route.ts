@@ -66,7 +66,22 @@ export async function POST(request: Request) {
       throw new Error("Location header not found in Google Drive response");
     }
 
-    return NextResponse.json({ uploadUrl });
+    // Extract file ID from the response body (Google returns file metadata on creation)
+    let fileId = "";
+    try {
+      const responseBody = await initResponse.json();
+      fileId = responseBody.id || "";
+    } catch {
+      // If no JSON body, try to extract from upload URL
+      const match = uploadUrl.match(/upload_id=([^&]+)/);
+      if (match) {
+        // The file ID will be available after the upload completes
+        // For now, we'll do a simple metadata query after upload
+        fileId = "";
+      }
+    }
+
+    return NextResponse.json({ uploadUrl, fileId, accessToken });
 
   } catch (error) {
     console.error("Error generating upload URL:", error);

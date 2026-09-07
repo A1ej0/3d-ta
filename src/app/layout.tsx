@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import WhatsAppFAB from "@/components/layout/WhatsAppFAB";
+import ClientProviders from "@/components/layout/ClientProviders";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -50,11 +51,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script src="https://checkout.wompi.co/widget.js" async />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <Navbar />
-        {children}
-        <Footer />
-        <WhatsAppFAB />
+        <ClientProviders>
+          <Navbar />
+          {children}
+          <Footer />
+          <WhatsAppFAB />
+        </ClientProviders>
       </body>
     </html>
   );
 }
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ import {
 } from "@/lib/pricing";
 import type { Technology } from "@/types";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface PriceSummaryProps {
   volume: number;
@@ -40,11 +41,20 @@ export default function PriceSummary({
   material,
   file,
 }: PriceSummaryProps) {
+  const { user, userProfile } = useAuth();
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("recogida");
+
+  // Auto-fill user data when logged in
+  useEffect(() => {
+    if (user) {
+      setCustomerName(user.displayName || "");
+      setCustomerEmail(user.email || "");
+    }
+  }, [user]);
 
   const materials = PRICING[technology] as Record<string, { pricePerCm3: number; label: string }>;
   const materialInfo = materials[material];
@@ -95,6 +105,26 @@ export default function PriceSummary({
     [customerEmail, customerName]
   );
 
+  // Capture thumbnail from the 3D canvas
+  const captureThumbnail = (): Blob | null => {
+    try {
+      const canvas = document.querySelector(".canvas-container canvas") as HTMLCanvasElement;
+      if (!canvas) return null;
+      const dataUrl = canvas.toDataURL("image/png");
+      const byteString = atob(dataUrl.split(",")[1]);
+      const mimeString = dataUrl.split(",")[0].split(":")[1].split(";")[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      return new Blob([ab], { type: mimeString });
+    } catch {
+      console.warn("Could not capture thumbnail");
+      return null;
+    }
+  };
+
   const handleCheckout = async () => {
     if (!file) return;
     if (!customerName.trim() || !customerEmail.trim()) {
@@ -106,7 +136,7 @@ export default function PriceSummary({
     setError(null);
 
     try {
-      // Step 1A: Get resumable upload URL from our backend
+      // Step 1A: Get resumable upload URL for STL
       const urlRes = await fetch("/api/upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -121,9 +151,9 @@ export default function PriceSummary({
         throw new Error(urlData.error || "Error al inicializar la subida");
       }
 
-      const { uploadUrl } = await urlRes.json();
+      const { uploadUrl, fileId: stlFileId } = await urlRes.json();
 
-      // Step 1B: Upload file bytes directly to Google Drive via PUT
+      // Step 1B: Upload STL file directly to Google Drive via PUT
       const uploadRes = await fetch(uploadUrl, {
         method: "PUT",
         headers: {
@@ -136,12 +166,46 @@ export default function PriceSummary({
         throw new Error(`Error subiendo el archivo: ${uploadRes.statusText}`);
       }
 
+      const driveUrl = stlFileId
+        ? `https://drive.google.com/file/d/${stlFileId}/view`
+        : `Google Drive (Nombre: ${file.name})`;
+
+      // Step 1C: Capture and upload thumbnail
+      let thumbnailUrl = "";
+      const thumbnailBlob = captureThumbnail();
+      if (thumbnailBlob) {
+        try {
+          const thumbName = file.name.replace(/\.[^.]+$/, "") + "_preview.png";
+          const thumbUrlRes = await fetch("/api/upload-url", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: thumbName,
+              mimeType: "image/png",
+            }),
+          });
+          if (thumbUrlRes.ok) {
+            const { uploadUrl: thumbUploadUrl, fileId: thumbFileId } = await thumbUrlRes.json();
+            const thumbUploadRes = await fetch(thumbUploadUrl, {
+              method: "PUT",
+              headers: { "Content-Type": "image/png" },
+              body: thumbnailBlob,
+            });
+            if (thumbUploadRes.ok && thumbFileId) {
+              thumbnailUrl = `https://drive.google.com/thumbnail?id=${thumbFileId}&sz=w400`;
+            }
+          }
+        } catch {
+          console.warn("Thumbnail upload failed, continuing without it");
+        }
+      }
+
       // Step 2: Get Wompi checkout data from our backend
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fileUrl: `Google Drive (Nombre: ${file.name})`, // Vercel Blob URL no longer used, so we pass a placeholder
+          fileUrl: driveUrl,
           fileName: file.name,
           volume,
           technology,
@@ -151,6 +215,9 @@ export default function PriceSummary({
           customerEmail: customerEmail.trim(),
           shippingMethod,
           shippingCost,
+          thumbnailUrl,
+          userId: user?.uid || "",
+          userPhone: userProfile?.phone || "",
         }),
       });
 
@@ -268,29 +335,42 @@ export default function PriceSummary({
         <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
           Datos para la orden
         </h4>
-        <div className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="customer-name" className="text-xs">Nombre *</Label>
-            <Input
-              id="customer-name"
-              placeholder="Tu nombre"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="bg-white/5 border-white/10 h-9 text-sm"
-            />
+        {user ? (
+          <div className="flex items-center gap-3 bg-white/5 rounded-lg p-3">
+            {user.photoURL && (
+              <img src={user.photoURL} alt="" className="w-9 h-9 rounded-full" referrerPolicy="no-referrer" />
+            )}
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">{user.displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+            </div>
+            <span className="ml-auto text-xs text-emerald-400">✓ Sesión activa</span>
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="customer-email" className="text-xs">Email *</Label>
-            <Input
-              id="customer-email"
-              type="email"
-              placeholder="tu@email.com"
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              className="bg-white/5 border-white/10 h-9 text-sm"
-            />
+        ) : (
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="customer-name" className="text-xs">Nombre *</Label>
+              <Input
+                id="customer-name"
+                placeholder="Tu nombre"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="bg-white/5 border-white/10 h-9 text-sm"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="customer-email" className="text-xs">Email *</Label>
+              <Input
+                id="customer-email"
+                type="email"
+                placeholder="tu@email.com"
+                value={customerEmail}
+                onChange={(e) => setCustomerEmail(e.target.value)}
+                className="bg-white/5 border-white/10 h-9 text-sm"
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Error */}

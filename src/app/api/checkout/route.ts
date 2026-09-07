@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { PRICING } from "@/lib/pricing";
 import { generateIntegritySignature, generateReference } from "@/lib/wompi";
-import type { Technology, CheckoutPayload } from "@/types";
+import type { Technology } from "@/types";
+import { adminDb } from "@/lib/firebase-admin";
 
 export async function POST(request: Request) {
   try {
-    const body: CheckoutPayload = await request.json();
+    const body = await request.json();
     const {
       fileUrl,
       fileName,
@@ -17,6 +18,9 @@ export async function POST(request: Request) {
       customerEmail,
       shippingMethod,
       shippingCost,
+      thumbnailUrl,
+      userId,
+      userPhone,
     } = body;
 
     // Validate required fields
@@ -86,15 +90,10 @@ export async function POST(request: Request) {
     // Generate integrity signature
     const signature = generateIntegritySignature(reference, amountInCents);
 
-    return NextResponse.json({
-      reference,
-      amountInCents,
-      currency: "COP",
-      signature,
-      publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY,
-      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL?.replace("localhost", "lvh.me") || "http://lvh.me:3000"}/success`,
-      // Pass metadata for the webhook to use
-      metadata: {
+    // Save pending order metadata to Firestore (keyed by reference)
+    // The Wompi webhook will use this to create the final order
+    try {
+      await adminDb.collection("pending_orders").doc(reference).set({
         fileUrl,
         fileName,
         volume: volume.toString(),
@@ -105,7 +104,24 @@ export async function POST(request: Request) {
         customerEmail,
         shippingMethod,
         totalAmountCOP,
-      },
+        thumbnailUrl: thumbnailUrl || "",
+        userId: userId || "",
+        userPhone: userPhone || "",
+        createdAt: new Date(),
+      });
+      console.log(`Pending order saved for reference: ${reference}`);
+    } catch (err) {
+      console.error("Error saving pending order to Firestore:", err);
+      // Don't fail the checkout if Firestore save fails
+    }
+
+    return NextResponse.json({
+      reference,
+      amountInCents,
+      currency: "COP",
+      signature,
+      publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY,
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL?.replace("localhost", "lvh.me") || "http://lvh.me:3000"}/success`,
     });
   } catch (error) {
     console.error("Checkout error:", error);

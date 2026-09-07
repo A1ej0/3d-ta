@@ -80,3 +80,40 @@ export interface ServiceCard {
   features: string[];
   gradient: string;
 }
+
+// ===== User Profile (Firestore) =====
+export type UserRole = "user" | "admin" | "superadmin";
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL: string;
+  phone: string;
+  role: UserRole;
+  createdAt: Date;
+}
+
+// ===== Order (Firestore) =====
+export type OrderStatus = "Recibido" | "En procesamiento" | "Impreso" | "Enviado" | "Entregado";
+export type DeliveryType = "Personal" | "Local" | "Nacional";
+
+export interface Order {
+  id?: string;
+  userId: string;
+  userEmail: string;
+  userPhone: string;
+  reference: string;
+  driveUrl: string;
+  thumbnailUrl: string;
+  fileName: string;
+  technology: Technology;
+  material: string;
+  volume: number;
+  totalPrice: number;
+  deliveryType: DeliveryType;
+  status: OrderStatus;
+  adminNotes: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
