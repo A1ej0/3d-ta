@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
   },
   // Transpile Three.js packages for proper ESM handling
   transpilePackages: ["three"],
+  // Evitar que Next.js intente empaquetar dependencias pesadas de servidor
+  serverExternalPackages: ["firebase-admin"],
 };
 
 export default nextConfig;
