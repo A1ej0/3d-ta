@@ -93,23 +93,27 @@ export async function POST(request: Request) {
     // Save pending order metadata to Firestore (keyed by reference)
     // The Wompi webhook will use this to create the final order
     try {
-      await adminDb.collection("pending_orders").doc(reference).set({
-        fileUrl,
-        fileName,
-        volume: volume.toString(),
-        technology,
-        material,
-        materialLabel: materialInfo.label,
-        customerName,
-        customerEmail,
-        shippingMethod,
-        totalAmountCOP,
-        thumbnailUrl: thumbnailUrl || "",
-        userId: userId || "",
-        userPhone: userPhone || "",
-        createdAt: new Date(),
-      });
-      console.log(`Pending order saved for reference: ${reference}`);
+      if (adminDb) {
+        await adminDb.collection("pending_orders").doc(reference).set({
+          fileUrl,
+          fileName,
+          volume: volume.toString(),
+          technology,
+          material,
+          materialLabel: materialInfo.label,
+          customerName,
+          customerEmail,
+          shippingMethod,
+          totalAmountCOP,
+          thumbnailUrl: thumbnailUrl || "",
+          userId: userId || "",
+          userPhone: userPhone || "",
+          createdAt: new Date(),
+        });
+        console.log(`Pending order saved for reference: ${reference}`);
+      } else {
+        console.error("adminDb is null. Could not save pending order.");
+      }
     } catch (err) {
       console.error("Error saving pending order to Firestore:", err);
       // Don't fail the checkout if Firestore save fails

@@ -24,12 +24,17 @@ function getAdminApp() {
   }
 
   // Fallback: use project ID only (works in Google Cloud environments)
-  return initializeApp({
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  });
+  try {
+    return initializeApp({
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "demo-project",
+    });
+  } catch (e) {
+    console.error("Failed to initialize Firebase Admin fallback:", e);
+    return null;
+  }
 }
 
 const adminApp = getAdminApp();
 
-export const adminDb = getFirestore(adminApp);
-export const adminAuth = getAuth(adminApp);
+export const adminDb = adminApp ? getFirestore(adminApp) : null;
+export const adminAuth = adminApp ? getAuth(adminApp) : null;
