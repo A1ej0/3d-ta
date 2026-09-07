@@ -166,6 +166,17 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
           <p className="text-xs text-muted-foreground">
             Pedido realizado el {order.createdAt instanceof Date ? order.createdAt.toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" }) : "—"}
           </p>
+
+          {/* Admin Notes */}
+          {order.adminNotes && (
+            <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+              <p className="text-xs font-semibold text-emerald-400 mb-1 flex items-center gap-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Mensaje de 3D-TA
+              </p>
+              <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{order.adminNotes}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
