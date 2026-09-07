@@ -151,7 +151,7 @@ export default function PriceSummary({
         throw new Error(urlData.error || "Error al inicializar la subida");
       }
 
-      const { uploadUrl, fileId: stlFileId } = await urlRes.json();
+      const { uploadUrl } = await urlRes.json();
 
       // Step 1B: Upload STL file directly to Google Drive via PUT
       const uploadRes = await fetch(uploadUrl, {
@@ -163,10 +163,13 @@ export default function PriceSummary({
       });
 
       if (!uploadRes.ok) {
-        throw new Error(`Error subiendo el archivo: ${uploadRes.statusText}`);
+        throw new Error("Error al subir el archivo");
       }
 
-      const driveUrl = stlFileId
+      const uploadedData = await uploadRes.json();
+      const stlFileId = uploadedData?.id || "";
+
+      const driveUrl = stlFileId 
         ? `https://drive.google.com/file/d/${stlFileId}/view`
         : `Google Drive (Nombre: ${file.name})`;
 
