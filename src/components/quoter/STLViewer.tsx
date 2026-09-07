@@ -43,7 +43,7 @@ interface STLViewerProps {
 
 export default function STLViewer({ geometry }: STLViewerProps) {
   return (
-    <div className="w-full aspect-square sm:aspect-video rounded-xl overflow-hidden glass canvas-container">
+    <div id="stl-viewer-canvas" className="w-full aspect-square sm:aspect-video rounded-xl overflow-hidden glass canvas-container">
       <Canvas
         camera={{ position: [3, 2, 4], fov: 50 }}
         dpr={[1, 2]}

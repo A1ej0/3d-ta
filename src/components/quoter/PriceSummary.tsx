@@ -108,7 +108,7 @@ export default function PriceSummary({
   // Capture thumbnail from the 3D canvas
   const captureThumbnail = (): string => {
     try {
-      const glCanvas = document.querySelector(".canvas-container canvas") as HTMLCanvasElement;
+      const glCanvas = document.querySelector("#stl-viewer-canvas canvas") as HTMLCanvasElement;
       if (!glCanvas) return "";
       
       // Create a temporary 2D canvas to merge the transparent WebGL canvas with a solid background
