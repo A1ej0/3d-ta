@@ -43,9 +43,30 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fetch dynamic pricing configuration from Firestore
+    let dynamicPricing = PRICING;
+    let dynamicMinOrder = 20000;
+    let dynamicShipping = {
+      recogida: { cost: 0 },
+      bogota: { cost: 10000 },
+      nacional: { cost: 20000 }
+    } as any;
+
+    try {
+      const { restGetDocument } = await import("@/lib/firebase-rest");
+      const settings = await restGetDocument("settings", "pricing");
+      if (settings) {
+        if (settings.pricing) dynamicPricing = settings.pricing;
+        if (settings.minOrderPrice !== undefined) dynamicMinOrder = settings.minOrderPrice;
+        if (settings.shippingCosts) dynamicShipping = settings.shippingCosts;
+      }
+    } catch (e) {
+      console.warn("Could not fetch dynamic pricing, falling back to defaults", e);
+    }
+
     // Validate material exists in pricing dictionary
-    const materials = PRICING[technology as Technology] as Record<string, { pricePerCm3: number; label: string }>;
-    const materialInfo = materials[material];
+    const materials = dynamicPricing[technology as Technology] as Record<string, { pricePerCm3: number; label: string }>;
+    const materialInfo = materials?.[material];
 
     if (!materialInfo) {
       return NextResponse.json(
@@ -55,9 +76,8 @@ export async function POST(request: Request) {
     }
 
     // Validate price consistency (volume × pricePerCm3) — prices in COP
-    const MIN_ORDER = 20000; // $20,000 COP minimum
     const calculatedPrice = Math.round(volume * materialInfo.pricePerCm3);
-    const expectedPrice = Math.max(calculatedPrice, MIN_ORDER);
+    const expectedPrice = Math.max(calculatedPrice, dynamicMinOrder);
 
     // Allow a small tolerance for rounding
     if (Math.abs(expectedPrice - totalPrice) > 100) {
@@ -68,9 +88,7 @@ export async function POST(request: Request) {
     }
 
     // Validate Shipping cost
-    let expectedShippingCost = 0;
-    if (shippingMethod === "bogota") expectedShippingCost = 10000;
-    else if (shippingMethod === "nacional") expectedShippingCost = 20000;
+    const expectedShippingCost = dynamicShipping[shippingMethod]?.cost || 0;
 
     if (shippingCost !== expectedShippingCost) {
       return NextResponse.json(

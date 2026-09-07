@@ -1,8 +1,8 @@
 "use client";
 
 import type { Technology } from "@/types";
-import { PRICING, TECHNOLOGIES } from "@/lib/pricing";
-import type { MaterialInfo } from "@/types";
+import { TECHNOLOGIES } from "@/lib/pricing";
+import { usePricing } from "@/contexts/PricingContext";
 
 interface ParameterPanelProps {
   technology: Technology;
@@ -17,12 +17,15 @@ export default function ParameterPanel({
   onTechnologyChange,
   onMaterialChange,
 }: ParameterPanelProps) {
-  const materials: Record<string, MaterialInfo> = PRICING[technology];
+  const { pricing } = usePricing();
+  
+  type MaterialInfo = { pricePerCm3: number; label: string; description: string; color: string };
+  const materials: Record<string, MaterialInfo> = pricing[technology];
   const materialKeys = Object.keys(materials);
 
   const handleTechChange = (tech: Technology) => {
     onTechnologyChange(tech);
-    const firstMat = Object.keys(PRICING[tech])[0];
+    const firstMat = Object.keys(pricing[tech])[0];
     onMaterialChange(firstMat);
   };
 

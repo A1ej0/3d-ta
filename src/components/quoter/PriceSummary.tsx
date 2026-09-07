@@ -12,17 +12,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  PRICING,
-  MIN_ORDER_PRICE,
   fitsInPrinter,
   PRINTER_VOLUMES,
   formatCOP,
-  SHIPPING_COSTS,
   type ShippingMethod,
 } from "@/lib/pricing";
 import type { Technology } from "@/types";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePricing } from "@/contexts/PricingContext";
 
 interface PriceSummaryProps {
   volume: number;
@@ -42,29 +40,36 @@ export default function PriceSummary({
   file,
 }: PriceSummaryProps) {
   const { user, userProfile } = useAuth();
+  const { pricing, shippingCosts, minOrderPrice, loading: pricingLoading } = usePricing();
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("recogida");
 
-  // Auto-fill user data when logged in
+  // If user profile is available, pre-fill
   useEffect(() => {
-    if (user) {
-      setCustomerName(user.displayName || "");
-      setCustomerEmail(user.email || "");
+    if (userProfile?.displayName && !customerName) {
+      setCustomerName(userProfile.displayName);
     }
-  }, [user]);
+    if (user?.email && !customerEmail) {
+      setCustomerEmail(user.email);
+    }
+  }, [user, userProfile, customerName, customerEmail]);
 
-  const materials = PRICING[technology] as Record<string, { pricePerCm3: number; label: string }>;
+  // Calculate pricing based on current material & volume using dynamic context
+  const materials = pricing[technology] as Record<string, { pricePerCm3: number; label: string }>;
   const materialInfo = materials[material];
-  const pricePerCm3 = materialInfo?.pricePerCm3 ?? 0;
-  const totalPrice = Math.round(volume * pricePerCm3);
-  const finalPrice = Math.max(totalPrice, MIN_ORDER_PRICE);
 
-  // Shipping calculation
-  const shippingCost = SHIPPING_COSTS[shippingMethod].cost;
-  const grandTotal = finalPrice + shippingCost;
+  // Base price based on volume
+  const basePrice = Math.round(volume * (materialInfo?.pricePerCm3 || 0));
+  
+  // Ensure minimum price
+  const expectedPrice = Math.max(basePrice, minOrderPrice);
+
+  // Add shipping
+  const shippingCost = shippingCosts[shippingMethod]?.cost || 0;
+  const totalPrice = expectedPrice + shippingCost;
 
   // Size validation
   const fits = fitsInPrinter(dimensions, technology);
@@ -195,7 +200,7 @@ export default function PriceSummary({
           volume,
           technology,
           material,
-          totalPrice: finalPrice,
+          totalPrice: expectedPrice,
           customerName: customerName.trim(),
           customerEmail: customerEmail.trim(),
           shippingMethod,
@@ -266,18 +271,18 @@ export default function PriceSummary({
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Precio unitario:</span>
-            <span>{formatCOP(pricePerCm3)} / cm³</span>
+            <span>{formatCOP(materialInfo?.pricePerCm3 || 0)} / cm³</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Cálculo original:</span>
-            <span className={`font-mono text-xs ${totalPrice < MIN_ORDER_PRICE ? "line-through text-muted-foreground opacity-50" : ""}`}>
-              {volume.toFixed(2)} × {formatCOP(pricePerCm3)} = {formatCOP(totalPrice)}
+            <span className={`font-mono text-xs ${basePrice < minOrderPrice ? "line-through text-muted-foreground opacity-50" : ""}`}>
+              {volume.toFixed(2)} × {formatCOP(materialInfo?.pricePerCm3 || 0)} = {formatCOP(basePrice)}
             </span>
           </div>
-          {totalPrice < MIN_ORDER_PRICE && (
+          {basePrice < minOrderPrice && (
             <div className="flex justify-between text-xs text-amber-400 bg-amber-500/10 p-2 rounded-md border border-amber-500/20">
               <span>⚠️ Ajustado al mínimo de orden:</span>
-              <span className="font-bold">{formatCOP(MIN_ORDER_PRICE)}</span>
+              <span className="font-bold">{formatCOP(minOrderPrice)}</span>
             </div>
           )}
           <div className="h-px bg-white/10 my-2" />
@@ -289,7 +294,7 @@ export default function PriceSummary({
                 <SelectValue placeholder="Selecciona un método" />
               </SelectTrigger>
               <SelectContent className="glass-strong border-white/10">
-                {Object.entries(SHIPPING_COSTS).map(([key, { label, cost }]) => (
+                {Object.entries(shippingCosts).map(([key, { label, cost }]) => (
                   <SelectItem key={key} value={key}>
                     {label} — {cost === 0 ? "Gratis" : formatCOP(cost)}
                   </SelectItem>
@@ -308,7 +313,7 @@ export default function PriceSummary({
           <div className="flex justify-between items-baseline">
             <span className="font-semibold text-lg">Total:</span>
             <span className="text-3xl font-bold gradient-text">
-              {formatCOP(grandTotal)}
+              {formatCOP(totalPrice)}
             </span>
           </div>
           <p className="text-xs text-muted-foreground">COP · Impuestos incluidos</p>
@@ -414,7 +419,7 @@ export default function PriceSummary({
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
               <line x1="1" y1="10" x2="23" y2="10"/>
             </svg>
-            Pagar con Wompi — {formatCOP(grandTotal)}
+            Pagar con Wompi — {formatCOP(totalPrice)}
           </span>
         )}
       </Button>

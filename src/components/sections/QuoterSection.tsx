@@ -8,6 +8,7 @@ import STLDropzone from "@/components/quoter/STLDropzone";
 import ParameterPanel from "@/components/quoter/ParameterPanel";
 import PriceSummary from "@/components/quoter/PriceSummary";
 import type { Technology } from "@/types";
+import { PricingProvider } from "@/contexts/PricingContext";
 
 const STLViewer = dynamic(() => import("@/components/quoter/STLViewer"), {
   ssr: false,
@@ -45,7 +46,8 @@ export default function QuoterSection() {
   };
 
   return (
-    <section id="cotizador" className="py-24 relative">
+    <PricingProvider>
+      <section id="cotizador" className="py-24 relative">
       {/* Background accents */}
       <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-gradient-radial from-cyan-500/5 to-transparent rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
       <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-gradient-radial from-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -120,6 +122,7 @@ export default function QuoterSection() {
           </div>
         )}
       </div>
-    </section>
+      </section>
+    </PricingProvider>
   );
 }

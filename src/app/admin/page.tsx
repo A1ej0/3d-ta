@@ -7,6 +7,8 @@ import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PricingProvider } from "@/contexts/PricingContext";
+import PricingConfigPanel from "@/components/admin/PricingConfigPanel";
 import {
   Select,
   SelectContent,
@@ -42,7 +44,7 @@ export default function AdminPage() {
   const { user, isAdmin, isSuperAdmin, loading } = useAuth();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<"pedidos" | "roles">("pedidos");
+  const [activeTab, setActiveTab] = useState<"pedidos" | "roles" | "configuracion">("pedidos");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
@@ -185,21 +187,31 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 p-1 glass rounded-xl mb-8">
+        <div className="flex gap-2 p-1 glass rounded-xl w-fit mb-8">
           <button
             onClick={() => setActiveTab("pedidos")}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`py-2 px-6 rounded-lg text-sm font-medium transition-all ${
               activeTab === "pedidos"
                 ? "bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-foreground border border-white/10"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            Pedidos
+            Pedidos Activos
+          </button>
+          <button
+            onClick={() => setActiveTab("configuracion")}
+            className={`py-2 px-6 rounded-lg text-sm font-medium transition-all ${
+              activeTab === "configuracion"
+                ? "bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-foreground border border-white/10"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Configuración
           </button>
           {isSuperAdmin && (
             <button
               onClick={() => setActiveTab("roles")}
-              className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+              className={`py-2 px-6 rounded-lg text-sm font-medium transition-all ${
                 activeTab === "roles"
                   ? "bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-foreground border border-white/10"
                   : "text-muted-foreground hover:text-foreground"
@@ -209,6 +221,13 @@ export default function AdminPage() {
             </button>
           )}
         </div>
+
+        {/* Configuracion Tab */}
+        {activeTab === "configuracion" && (
+          <PricingProvider>
+            <PricingConfigPanel />
+          </PricingProvider>
+        )}
 
         {/* Orders Tab */}
         {activeTab === "pedidos" && (
