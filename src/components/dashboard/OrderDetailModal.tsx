@@ -73,6 +73,13 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
           <div>
             <h3 className="text-lg font-bold">{order.fileName}</h3>
             <p className="text-xs text-muted-foreground mt-1">Ref: {order.reference}</p>
+            {(order.userEmail || order.userPhone) && (
+              <div className="mt-3 p-3 bg-white/5 rounded-lg border border-white/10">
+                <p className="text-xs font-semibold text-cyan-400 mb-1">Datos del Cliente</p>
+                {order.userEmail && <p className="text-sm text-foreground">{order.userEmail}</p>}
+                {order.userPhone && <p className="text-sm text-foreground">Tel: {order.userPhone}</p>}
+              </div>
+            )}
           </div>
 
           {/* Status Progress */}

@@ -106,22 +106,15 @@ export default function PriceSummary({
   );
 
   // Capture thumbnail from the 3D canvas
-  const captureThumbnail = (): Blob | null => {
+  const captureThumbnail = (): string => {
     try {
       const canvas = document.querySelector(".canvas-container canvas") as HTMLCanvasElement;
-      if (!canvas) return null;
-      const dataUrl = canvas.toDataURL("image/png");
-      const byteString = atob(dataUrl.split(",")[1]);
-      const mimeString = dataUrl.split(",")[0].split(":")[1].split(";")[0];
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      return new Blob([ab], { type: mimeString });
+      if (!canvas) return "";
+      // Use low quality JPEG to keep string size small for Firestore (approx 10-20KB)
+      return canvas.toDataURL("image/jpeg", 0.4);
     } catch {
       console.warn("Could not capture thumbnail");
-      return null;
+      return "";
     }
   };
 
@@ -173,35 +166,8 @@ export default function PriceSummary({
         ? `https://drive.google.com/file/d/${stlFileId}/view`
         : `Google Drive (Nombre: ${file.name})`;
 
-      // Step 1C: Capture and upload thumbnail
-      let thumbnailUrl = "";
-      const thumbnailBlob = captureThumbnail();
-      if (thumbnailBlob) {
-        try {
-          const thumbName = file.name.replace(/\.[^.]+$/, "") + "_preview.png";
-          const thumbUrlRes = await fetch("/api/upload-url", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: thumbName,
-              mimeType: "image/png",
-            }),
-          });
-          if (thumbUrlRes.ok) {
-            const { uploadUrl: thumbUploadUrl, fileId: thumbFileId } = await thumbUrlRes.json();
-            const thumbUploadRes = await fetch(thumbUploadUrl, {
-              method: "PUT",
-              headers: { "Content-Type": "image/png" },
-              body: thumbnailBlob,
-            });
-            if (thumbUploadRes.ok && thumbFileId) {
-              thumbnailUrl = `https://drive.google.com/thumbnail?id=${thumbFileId}&sz=w400`;
-            }
-          }
-        } catch {
-          console.warn("Thumbnail upload failed, continuing without it");
-        }
-      }
+      // Step 1C: Capture thumbnail as Base64 for Firestore
+      const thumbnailUrl = captureThumbnail();
 
       // Step 2: Get Wompi checkout data from our backend
       const res = await fetch("/api/checkout", {
