@@ -127,10 +127,21 @@ export async function POST(request: Request) {
       publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY,
       redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL?.replace("localhost", "lvh.me") || "http://lvh.me:3000"}/success`,
     });
-  } catch (error) {
-    console.error("Checkout error:", error);
+    return NextResponse.json({
+      reference,
+      amountInCents,
+      currency: "COP",
+      signature,
+      publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY,
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL?.replace("localhost", "lvh.me") || "http://lvh.me:3000"}/success`,
+    });
+  } catch (error: any) {
+    console.error("Checkout error detailed:", error);
     return NextResponse.json(
-      { error: "Error al crear la sesión de pago." },
+      { 
+        error: "Error interno en el servidor al procesar el checkout.", 
+        details: error?.message || String(error)
+      },
       { status: 500 }
     );
   }
