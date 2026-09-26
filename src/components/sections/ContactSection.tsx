@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 
 const SERVICE_OPTIONS = [
   { value: "impresion-3d", label: "Impresión 3D" },
@@ -59,26 +58,24 @@ export default function ContactSection() {
   };
 
   return (
-    <section id="contacto" className="py-24 relative">
-      <div className="absolute bottom-0 right-0 w-[600px] h-[400px] bg-gradient-radial from-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <section id="contacto" className="theme-dark bg-background text-foreground py-32 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 border-emerald-500/30 text-emerald-400">
+        <div className="text-center mb-20">
+          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">
             Contacto
-          </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            ¿Tienes un <span className="gradient-text">proyecto</span>?
+          </p>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 text-foreground">
+            ¿Tienes un <span className="text-primary">proyecto</span>?
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
             Cuéntanos tu idea y te contactamos con una propuesta personalizada.
           </p>
         </div>
 
         {/* Form */}
         <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="glass rounded-2xl p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="bg-card rounded-3xl p-8 md:p-10 space-y-6 apple-shadow-lg">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="contact-name">Nombre *</Label>
@@ -88,7 +85,7 @@ export default function ContactSection() {
                   placeholder="Tu nombre completo"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="bg-white/5 border-white/10 focus:border-cyan-500/50"
+                  className="bg-accent/60 border-transparent focus:border-primary/30 focus:ring-primary/20 h-11 rounded-xl"
                 />
               </div>
               <div className="space-y-2">
@@ -100,7 +97,7 @@ export default function ContactSection() {
                   placeholder="tu@email.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="bg-white/5 border-white/10 focus:border-cyan-500/50"
+                  className="bg-accent/60 border-transparent focus:border-primary/30 focus:ring-primary/20 h-11 rounded-xl"
                 />
               </div>
             </div>
@@ -114,7 +111,7 @@ export default function ContactSection() {
                   placeholder="+57 300 123 4567"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="bg-white/5 border-white/10 focus:border-cyan-500/50"
+                  className="bg-accent/60 border-transparent focus:border-primary/30 focus:ring-primary/20 h-11 rounded-xl"
                 />
               </div>
               <div className="space-y-2">
@@ -124,10 +121,10 @@ export default function ContactSection() {
                   value={formData.serviceType}
                   onValueChange={(val) => setFormData({ ...formData, serviceType: val || "" })}
                 >
-                  <SelectTrigger id="contact-service" className="bg-white/5 border-white/10">
+                  <SelectTrigger id="contact-service" className="bg-accent/60 border-transparent h-11 rounded-xl">
                     <SelectValue placeholder="Selecciona un servicio" />
                   </SelectTrigger>
-                  <SelectContent className="glass-strong border-white/10">
+                  <SelectContent className="bg-card border-border rounded-xl apple-shadow-lg">
                     {SERVICE_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
@@ -147,18 +144,18 @@ export default function ContactSection() {
                 placeholder="Describe tu proyecto, incluye detalles como dimensiones, material preferido, cantidad, etc."
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                className="bg-white/5 border-white/10 focus:border-cyan-500/50 resize-none"
+                className="bg-accent/60 border-transparent focus:border-primary/30 focus:ring-primary/20 rounded-xl resize-none"
               />
             </div>
 
             {/* Status Messages */}
             {status === "success" && (
-              <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-4 text-emerald-400 text-sm">
+              <div className="rounded-2xl bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 p-4 text-green-700 dark:text-green-400 text-sm">
                 ✅ ¡Mensaje enviado! Te contactaremos pronto.
               </div>
             )}
             {status === "error" && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-400 text-sm">
+              <div className="rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-4 text-red-600 dark:text-red-400 text-sm">
                 ❌ {errorMsg || "Error al enviar. Intenta de nuevo."}
               </div>
             )}
@@ -166,7 +163,7 @@ export default function ContactSection() {
             <Button
               type="submit"
               disabled={status === "loading"}
-              className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white border-0 h-12 text-base shadow-lg shadow-cyan-500/20"
+              className="w-full bg-primary hover:bg-primary/90 text-white h-12 text-base font-medium rounded-2xl shadow-none"
             >
               {status === "loading" ? (
                 <span className="flex items-center gap-2">

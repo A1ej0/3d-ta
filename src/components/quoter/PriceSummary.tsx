@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -122,7 +121,7 @@ export default function PriceSummary({
       if (!ctx) return "";
       
       // Fill with a dark background to match our theme (so transparent areas aren't black)
-      ctx.fillStyle = "#1e1e24"; // Or any color that looks good
+      ctx.fillStyle = "#1e1e24";
       ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
       
       // Draw the WebGL canvas on top
@@ -235,25 +234,25 @@ export default function PriceSummary({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Model Info */}
-      <div className="glass rounded-xl p-5 space-y-3">
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+      <div className="bg-card rounded-2xl p-5 space-y-3 apple-shadow">
+        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Información del modelo
         </h4>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Volumen:</span>
-            <span className="font-semibold text-cyan-400">{volume.toFixed(2)} cm³</span>
+            <span className="font-semibold text-primary">{volume.toFixed(2)} cm³</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Triángulos:</span>
-            <span className="font-mono">{triangleCount.toLocaleString()}</span>
+            <span className="font-mono text-foreground">{triangleCount.toLocaleString()}</span>
           </div>
           {dimensions && (
             <div className="col-span-2 flex justify-between">
               <span className="text-muted-foreground">Dimensiones:</span>
-              <span className="font-mono text-xs">
+              <span className="font-mono text-xs text-foreground">
                 {dimensions.x.toFixed(1)} × {dimensions.y.toFixed(1)} × {dimensions.z.toFixed(1)} mm
               </span>
             </div>
@@ -262,40 +261,40 @@ export default function PriceSummary({
       </div>
 
       {/* Price Breakdown */}
-      <div className="glass rounded-xl p-5 space-y-3">
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+      <div className="bg-card rounded-2xl p-5 space-y-3 apple-shadow">
+        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Cotización
         </h4>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Material:</span>
-            <span>{materialInfo?.label}</span>
+            <span className="text-foreground">{materialInfo?.label}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Precio unitario:</span>
-            <span>{formatCOP(materialInfo?.pricePerCm3 || 0)} / cm³</span>
+            <span className="text-foreground">{formatCOP(materialInfo?.pricePerCm3 || 0)} / cm³</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Cálculo original:</span>
-            <span className={`font-mono text-xs ${basePrice < minOrderPrice ? "line-through text-muted-foreground opacity-50" : ""}`}>
+            <span className={`font-mono text-xs ${basePrice < minOrderPrice ? "line-through text-muted-foreground opacity-50" : "text-foreground"}`}>
               {volume.toFixed(2)} × {formatCOP(materialInfo?.pricePerCm3 || 0)} = {formatCOP(basePrice)}
             </span>
           </div>
           {basePrice < minOrderPrice && (
-            <div className="flex justify-between text-xs text-amber-400 bg-amber-500/10 p-2 rounded-md border border-amber-500/20">
+            <div className="flex justify-between text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 p-2.5 rounded-xl border border-amber-200 dark:border-amber-500/20">
               <span>⚠️ Ajustado al mínimo de orden:</span>
               <span className="font-bold">{formatCOP(minOrderPrice)}</span>
             </div>
           )}
-          <div className="h-px bg-white/10 my-2" />
+          <div className="h-px bg-border my-2" />
           
           <div className="space-y-1.5 pb-2">
             <Label className="text-xs text-muted-foreground">Método de Envío</Label>
             <Select value={shippingMethod} onValueChange={(v) => setShippingMethod(v as ShippingMethod)}>
-              <SelectTrigger className="h-8 bg-white/5 border-white/10 text-xs">
+              <SelectTrigger className="h-9 bg-accent/60 border-transparent text-xs rounded-xl">
                 <SelectValue placeholder="Selecciona un método" />
               </SelectTrigger>
-              <SelectContent className="glass-strong border-white/10">
+              <SelectContent className="bg-card border-border rounded-xl apple-shadow-lg">
                 {Object.entries(shippingCosts).map(([key, { label, cost }]) => (
                   <SelectItem key={key} value={key}>
                     {label} — {cost === 0 ? "Gratis" : formatCOP(cost)}
@@ -313,8 +312,8 @@ export default function PriceSummary({
           )}
 
           <div className="flex justify-between items-baseline">
-            <span className="font-semibold text-lg">Total:</span>
-            <span className="text-3xl font-bold gradient-text">
+            <span className="font-semibold text-lg text-foreground">Total:</span>
+            <span className="text-3xl font-bold text-primary">
               {formatCOP(totalPrice)}
             </span>
           </div>
@@ -323,21 +322,21 @@ export default function PriceSummary({
       </div>
 
       {/* Customer Info */}
-      <div className="glass rounded-xl p-5 space-y-4">
-        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+      <div className="bg-card rounded-2xl p-5 space-y-4 apple-shadow">
+        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           Datos para la orden
         </h4>
         {user ? (
           <div className="space-y-4">
-            <div className="flex items-center gap-3 bg-white/5 rounded-lg p-3">
+            <div className="flex items-center gap-3 bg-accent/60 rounded-xl p-3">
               {user.photoURL && (
                 <img src={user.photoURL} alt="" className="w-9 h-9 rounded-full" referrerPolicy="no-referrer" />
               )}
               <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">{userProfile?.displayName || user.displayName}</p>
+                <p className="text-sm font-semibold truncate text-foreground">{userProfile?.displayName || user.displayName}</p>
                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
               </div>
-              <span className="ml-auto text-xs text-emerald-400">✓ Sesión activa</span>
+              <span className="ml-auto text-xs text-green-600 dark:text-green-400 font-medium">✓ Activa</span>
             </div>
 
             {shippingMethod !== "recogida" && (
@@ -348,7 +347,7 @@ export default function PriceSummary({
                   placeholder="Ej: Calle 123 # 45-67, Apto 802, Conjunto Los Pinos, Bogotá. (Incluir barrio e indicaciones)"
                   value={shippingAddress}
                   onChange={(e) => setShippingAddress(e.target.value)}
-                  className="bg-white/5 border-white/10 text-sm min-h-[80px]"
+                  className="bg-accent/60 border-transparent text-sm min-h-[80px] rounded-xl"
                 />
                 <p className="text-[10px] text-muted-foreground">Esta dirección se guardará en tu perfil para futuras compras.</p>
               </div>
@@ -363,14 +362,14 @@ export default function PriceSummary({
 
       {/* Error */}
       {error && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-red-400 text-sm">
+        <div className="rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-3 text-red-600 dark:text-red-400 text-sm">
           {error}
         </div>
       )}
 
       {/* Size Error / Warning */}
       {!fits && (
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-400 text-sm space-y-2">
+        <div className="rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 p-4 text-red-600 dark:text-red-400 text-sm space-y-2">
           <p className="font-semibold flex items-center gap-2">
             ⚠️ La pieza excede el tamaño máximo
           </p>
@@ -384,12 +383,12 @@ export default function PriceSummary({
             Te sugerimos dividir la pieza o contáctanos directamente para analizar el caso.
           </p>
           <div className="pt-2 flex gap-3">
-            <Link href="#contacto" className="underline hover:text-white">Formulario de contacto</Link>
+            <Link href="#contacto" className="underline hover:text-foreground">Formulario de contacto</Link>
             <a 
               href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=Hola, tengo una pieza grande que necesito imprimir en partes.`}
               target="_blank" 
               rel="noopener noreferrer"
-              className="underline text-emerald-400 hover:text-emerald-300"
+              className="underline text-green-600 dark:text-green-400 hover:opacity-80"
             >
               Consultar por WhatsApp
             </a>
@@ -402,7 +401,7 @@ export default function PriceSummary({
         <Button
           onClick={handleCheckout}
           disabled={isProcessing || !file || volume <= 0 || !fits}
-          className="w-full h-14 text-base font-semibold bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white border-0 shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:shadow-cyan-500/30"
+          className="w-full h-14 text-base font-semibold bg-primary hover:bg-primary/90 text-white rounded-2xl shadow-none transition-all duration-200 active:scale-[0.98]"
         >
           {isProcessing ? (
             <span className="flex items-center gap-2">
@@ -425,7 +424,7 @@ export default function PriceSummary({
       ) : (
         <Button
           onClick={signInWithGoogle}
-          className="w-full h-14 text-base font-semibold bg-white text-black hover:bg-gray-200 border-0 shadow-xl transition-all duration-300"
+          className="w-full h-14 text-base font-semibold bg-foreground text-background hover:opacity-90 rounded-2xl shadow-none transition-all duration-200"
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

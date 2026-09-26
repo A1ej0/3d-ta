@@ -7,11 +7,11 @@ const formatCOP = (value: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(value);
 
 const STATUS_STEPS = [
-  { key: "Recibido", color: "bg-yellow-500", label: "Recibido" },
-  { key: "En procesamiento", color: "bg-blue-500", label: "En proceso" },
-  { key: "Impreso", color: "bg-cyan-500", label: "Impreso" },
-  { key: "Enviado", color: "bg-purple-500", label: "Enviado" },
-  { key: "Entregado", color: "bg-emerald-500", label: "Entregado" },
+  { key: "Recibido", label: "Recibido" },
+  { key: "En procesamiento", label: "En proceso" },
+  { key: "Impreso", label: "Impreso" },
+  { key: "Enviado", label: "Enviado" },
+  { key: "Entregado", label: "Entregado" },
 ];
 
 interface OrderDetailModalProps {
@@ -41,22 +41,22 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-black/40 backdrop-blur-xl animate-fade-in"
         onClick={onClose}
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg glass-strong rounded-2xl border border-white/10 shadow-2xl shadow-black/50 animate-slide-up overflow-hidden">
+      <div className="relative w-full max-w-lg bg-card rounded-3xl shadow-2xl shadow-black/[0.12] animate-slide-up overflow-hidden">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors z-10"
+          className="absolute top-4 right-4 w-8 h-8 rounded-full bg-accent hover:bg-accent/80 flex items-center justify-center transition-colors z-10"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
 
         {/* Thumbnail */}
-        <div className="w-full h-48 bg-white/5 flex items-center justify-center">
+        <div className="w-full h-48 bg-accent flex items-center justify-center">
           {order.thumbnailUrl ? (
             <img src={order.thumbnailUrl} alt="Preview del modelo 3D" className="w-full h-full object-contain" />
           ) : (
@@ -71,15 +71,15 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
         <div className="p-6 space-y-5">
           {/* File name & reference */}
           <div>
-            <h3 className="text-lg font-bold">{order.fileName}</h3>
+            <h3 className="text-lg font-bold text-foreground">{order.fileName}</h3>
             <p className="text-xs text-muted-foreground mt-1">Ref: {order.reference}</p>
             {(order.userEmail || order.userPhone || order.shippingAddress) && (
-              <div className="mt-3 p-3 bg-white/5 rounded-lg border border-white/10 space-y-1">
-                <p className="text-xs font-semibold text-cyan-400 mb-1">Datos del Cliente</p>
+              <div className="mt-3 p-3 bg-accent/60 rounded-xl space-y-1">
+                <p className="text-xs font-semibold text-primary mb-1">Datos del Cliente</p>
                 {order.userEmail && <p className="text-sm text-foreground">{order.userEmail}</p>}
                 {order.userPhone && <p className="text-sm text-foreground">Tel: {order.userPhone}</p>}
                 {order.shippingAddress && (
-                  <p className="text-sm text-foreground mt-2 border-t border-white/5 pt-2">
+                  <p className="text-sm text-foreground mt-2 border-t border-border pt-2">
                     <span className="text-xs text-muted-foreground block mb-0.5">Dirección de envío:</span>
                     {order.shippingAddress}
                   </p>
@@ -96,18 +96,18 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
                 <div key={step.key} className="flex-1 flex flex-col items-center">
                   <div className="flex items-center w-full">
                     <div
-                      className={`w-4 h-4 rounded-full flex-shrink-0 border-2 transition-all ${
+                      className={`w-4 h-4 rounded-full flex-shrink-0 transition-all ${
                         i <= currentStepIndex
-                          ? `${step.color} border-transparent`
-                          : "bg-transparent border-white/20"
+                          ? "bg-primary"
+                          : "bg-accent border-2 border-border"
                       }`}
                     />
                     {i < STATUS_STEPS.length - 1 && (
                       <div
                         className={`flex-1 h-0.5 ${
                           i < currentStepIndex
-                            ? "bg-gradient-to-r from-cyan-500 to-purple-500"
-                            : "bg-white/10"
+                            ? "bg-primary"
+                            : "bg-border"
                         }`}
                       />
                     )}
@@ -122,23 +122,23 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
             </div>
           </div>
 
-          {/* Details grid */}
+          {/* Details grid — Bento style */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white/5 rounded-lg p-3">
+            <div className="bg-accent/60 rounded-xl p-3">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Total Pagado</p>
-              <p className="text-sm font-bold gradient-text">{formatCOP(order.totalPrice)}</p>
+              <p className="text-sm font-bold text-primary">{formatCOP(order.totalPrice)}</p>
             </div>
-            <div className="bg-white/5 rounded-lg p-3">
+            <div className="bg-accent/60 rounded-xl p-3">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Entrega</p>
-              <p className="text-sm font-semibold">{order.deliveryType}</p>
+              <p className="text-sm font-semibold text-foreground">{order.deliveryType}</p>
             </div>
-            <div className="bg-white/5 rounded-lg p-3">
+            <div className="bg-accent/60 rounded-xl p-3">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Tecnología</p>
-              <p className="text-sm font-semibold">{order.technology}</p>
+              <p className="text-sm font-semibold text-foreground">{order.technology}</p>
             </div>
-            <div className="bg-white/5 rounded-lg p-3">
+            <div className="bg-accent/60 rounded-xl p-3">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Material</p>
-              <p className="text-sm font-semibold">{order.material}</p>
+              <p className="text-sm font-semibold text-foreground">{order.material}</p>
             </div>
           </div>
 
@@ -149,7 +149,7 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
                 href={order.driveUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+                className="flex items-center gap-2 text-sm text-primary hover:underline transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 Ver archivo en Google Drive
@@ -169,8 +169,8 @@ export default function OrderDetailModal({ order, onClose }: OrderDetailModalPro
 
           {/* Admin Notes */}
           {order.adminNotes && (
-            <div className="mt-4 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-              <p className="text-xs font-semibold text-emerald-400 mb-1 flex items-center gap-1.5">
+            <div className="mt-4 p-4 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-2xl">
+              <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-1 flex items-center gap-1.5">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 Mensaje de 3D-TA
               </p>

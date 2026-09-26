@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
-import { Badge } from "@/components/ui/badge";
 import { useSTLVolume } from "@/hooks/useSTLVolume";
 import STLDropzone from "@/components/quoter/STLDropzone";
 import ParameterPanel from "@/components/quoter/ParameterPanel";
@@ -13,7 +12,7 @@ import { PricingProvider } from "@/contexts/PricingContext";
 const STLViewer = dynamic(() => import("@/components/quoter/STLViewer"), {
   ssr: false,
   loading: () => (
-    <div className="w-full aspect-square sm:aspect-video rounded-xl glass flex items-center justify-center">
+    <div className="w-full aspect-square sm:aspect-video rounded-2xl bg-card apple-shadow flex items-center justify-center">
       <div className="text-sm text-muted-foreground">Cargando visor 3D...</div>
     </div>
   ),
@@ -47,21 +46,17 @@ export default function QuoterSection() {
 
   return (
     <PricingProvider>
-      <section id="cotizador" className="py-24 relative">
-      {/* Background accents */}
-      <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-gradient-radial from-cyan-500/5 to-transparent rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
-      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-gradient-radial from-purple-500/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <section id="cotizador" className="theme-light bg-background text-foreground py-32 relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <Badge variant="outline" className="mb-4 border-cyan-500/30 text-cyan-400">
+        <div className="text-center mb-20">
+          <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">
             Cotizador Automático
-          </Badge>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-            Cotiza tu impresión <span className="gradient-text">al instante</span>
+          </p>
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 text-foreground">
+            Cotiza tu impresión <span className="text-primary">al instante</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
             Sube tu archivo STL, selecciona material y obtén tu precio en tiempo real. Sin esperas.
           </p>
         </div>
@@ -79,7 +74,7 @@ export default function QuoterSection() {
         {/* Error */}
         {error && (
           <div className="max-w-2xl mx-auto mb-8">
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-400 text-sm">
+            <div className="rounded-2xl bg-destructive/[0.06] border border-destructive/10 p-4 text-destructive text-sm">
               {error}
             </div>
           </div>
@@ -88,7 +83,7 @@ export default function QuoterSection() {
         {/* Quoter Content (shown after file is loaded) */}
         {geometry && volume > 0 && (
           <div className="animate-slide-up">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               {/* Left: 3D Viewer */}
               <div className="lg:col-span-5">
                 <STLViewer geometry={geometry} />

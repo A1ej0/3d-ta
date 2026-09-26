@@ -32,6 +32,7 @@ yarn-error.log*
 
 # Google Service Account credentials (NEVER commit this)
 d-ta-507716-01a71874c100.json
+fire.json
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -42,3 +43,6 @@ d-ta-507716-01a71874c100.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# docs
+documentacion/

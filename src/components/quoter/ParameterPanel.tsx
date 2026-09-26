@@ -41,20 +41,20 @@ export default function ParameterPanel({
             <button
               key={tech}
               onClick={() => handleTechChange(tech)}
-              className={`relative p-4 rounded-xl border text-left transition-all duration-300 ${
+              className={`relative p-4 rounded-2xl text-left transition-all duration-200 ${
                 technology === tech
-                  ? "border-cyan-500/50 bg-cyan-500/5 shadow-lg shadow-cyan-500/10"
-                  : "border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10"
+                  ? "bg-primary/[0.08] ring-2 ring-primary/30"
+                  : "bg-card apple-shadow-sm hover:apple-shadow"
               }`}
             >
-              <div className="text-sm font-semibold mb-1">
+              <div className="text-sm font-semibold mb-1 text-foreground">
                 {TECHNOLOGIES[tech].label}
               </div>
               <div className="text-xs text-muted-foreground">
                 {TECHNOLOGIES[tech].description}
               </div>
               {technology === tech && (
-                <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-cyan-400" />
+                <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-primary" />
               )}
             </button>
           ))}
@@ -75,10 +75,10 @@ export default function ParameterPanel({
               <button
                 key={mat}
                 onClick={() => onMaterialChange(mat)}
-                className={`w-full p-4 rounded-xl border text-left transition-all duration-300 flex items-center gap-4 ${
+                className={`w-full p-4 rounded-2xl text-left transition-all duration-200 flex items-center gap-4 ${
                   isSelected
-                    ? "border-cyan-500/50 bg-cyan-500/5 shadow-lg shadow-cyan-500/10"
-                    : "border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10"
+                    ? "bg-primary/[0.08] ring-2 ring-primary/30"
+                    : "bg-card apple-shadow-sm hover:apple-shadow"
                 }`}
               >
                 {/* Color dot */}
@@ -86,14 +86,14 @@ export default function ParameterPanel({
                   className="w-4 h-4 rounded-full shrink-0"
                   style={{
                     backgroundColor: info.color,
-                    boxShadow: isSelected ? `0 0 8px ${info.color}` : "none",
+                    boxShadow: isSelected ? `0 0 8px ${info.color}40` : "none",
                   }}
                 />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold">{info.label}</span>
-                    <span className="text-sm font-bold text-cyan-400">
+                    <span className="text-sm font-semibold text-foreground">{info.label}</span>
+                    <span className="text-sm font-bold text-primary">
                       ${info.pricePerCm3.toFixed(2)}/cm³
                     </span>
                   </div>

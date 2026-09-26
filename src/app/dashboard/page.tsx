@@ -16,11 +16,11 @@ const formatCOP = (value: number) =>
   new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 }).format(value);
 
 const STATUS_COLORS: Record<string, string> = {
-  "Recibido": "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  "En procesamiento": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  "Impreso": "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-  "Enviado": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  "Entregado": "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  "Recibido": "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400",
+  "En procesamiento": "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400",
+  "Impreso": "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400",
+  "Enviado": "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400",
+  "Entregado": "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400",
 };
 
 export default function DashboardPage() {
@@ -101,18 +101,18 @@ export default function DashboardPage() {
   if (loading || !user) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen pt-24 pb-16 px-4">
+    <main className="min-h-screen pt-24 pb-16 px-4 bg-background">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-10">
           {user.photoURL && (
-            <div className="p-0.5 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600">
+            <div className="ring-2 ring-primary/20 rounded-full">
               <img
                 src={user.photoURL}
                 alt=""
@@ -122,20 +122,20 @@ export default function DashboardPage() {
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold">
-              Hola, <span className="gradient-text">{user.displayName}</span>
+            <h1 className="text-2xl font-bold text-foreground">
+              Hola, <span className="text-primary">{user.displayName}</span>
             </h1>
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 p-1 glass rounded-xl mb-8">
+        {/* Tabs — iOS segmented control style */}
+        <div className="flex gap-1 p-1 bg-accent rounded-2xl mb-8">
           <button
             onClick={() => setActiveTab("perfil")}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 ${
               activeTab === "perfil"
-                ? "bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-foreground border border-white/10"
+                ? "bg-card text-foreground apple-shadow"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -143,9 +143,9 @@ export default function DashboardPage() {
           </button>
           <button
             onClick={() => setActiveTab("pedidos")}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 ${
               activeTab === "pedidos"
-                ? "bg-gradient-to-r from-cyan-500/20 to-purple-600/20 text-foreground border border-white/10"
+                ? "bg-card text-foreground apple-shadow"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -155,8 +155,8 @@ export default function DashboardPage() {
 
         {/* Profile Tab */}
         {activeTab === "perfil" && (
-          <div className="glass rounded-2xl p-6 md:p-8 space-y-6 animate-slide-up">
-            <h2 className="text-lg font-semibold">Información Personal</h2>
+          <div className="bg-card rounded-3xl p-6 md:p-8 space-y-6 apple-shadow animate-slide-up">
+            <h2 className="text-lg font-semibold text-foreground">Información Personal</h2>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
@@ -164,7 +164,7 @@ export default function DashboardPage() {
                 <Input
                   value={user.displayName || ""}
                   disabled
-                  className="bg-white/5 border-white/10 h-10 text-sm opacity-60"
+                  className="bg-accent/60 border-transparent h-11 text-sm opacity-60 rounded-xl"
                 />
               </div>
               <div className="space-y-1.5">
@@ -172,7 +172,7 @@ export default function DashboardPage() {
                 <Input
                   value={user.email || ""}
                   disabled
-                  className="bg-white/5 border-white/10 h-10 text-sm opacity-60"
+                  className="bg-accent/60 border-transparent h-11 text-sm opacity-60 rounded-xl"
                 />
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function DashboardPage() {
                   placeholder="573001234567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="bg-white/5 border-white/10 h-10 text-sm flex-1"
+                  className="bg-accent/60 border-transparent h-11 text-sm flex-1 rounded-xl focus:border-primary/30 focus:ring-primary/20"
                 />
               </div>
               <p className="text-xs text-muted-foreground">
@@ -204,7 +204,7 @@ export default function DashboardPage() {
                 placeholder="Ej: Calle 123 # 45-67, Apto 802, Conjunto Los Pinos, Bogotá. (Incluir barrio e indicaciones)"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="bg-white/5 border-white/10 text-sm min-h-[80px]"
+                className="bg-accent/60 border-transparent text-sm min-h-[80px] rounded-xl focus:border-primary/30 focus:ring-primary/20"
               />
               <p className="text-xs text-muted-foreground">
                 Se autocompletará automáticamente en tus futuras compras.
@@ -215,7 +215,7 @@ export default function DashboardPage() {
               <Button
                 onClick={handleSaveProfile}
                 disabled={savingProfile}
-                className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white border-0 h-10 w-full sm:w-auto px-8"
+                className="bg-primary hover:bg-primary/90 text-white h-11 w-full sm:w-auto px-8 rounded-2xl shadow-none"
               >
                 {savingProfile ? "Guardando..." : profileSaved ? "✓ Guardado" : "Guardar Cambios"}
               </Button>
@@ -228,20 +228,20 @@ export default function DashboardPage() {
           <div className="animate-slide-up">
             {loadingOrders ? (
               <div className="flex justify-center py-16">
-                <div className="animate-spin w-8 h-8 border-2 border-cyan-500 border-t-transparent rounded-full" />
+                <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
               </div>
             ) : orders.length === 0 ? (
-              <div className="glass rounded-2xl p-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-muted-foreground"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              <div className="bg-card rounded-3xl p-12 text-center apple-shadow">
+                <div className="w-16 h-16 rounded-2xl bg-primary/[0.08] flex items-center justify-center mx-auto mb-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-primary"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Sin pedidos aún</h3>
+                <h3 className="text-lg font-semibold mb-2 text-foreground">Sin pedidos aún</h3>
                 <p className="text-muted-foreground text-sm mb-6">
                   Cuando realices una compra, tus pedidos aparecerán aquí.
                 </p>
                 <Button
                   onClick={() => router.push("/#cotizador")}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white border-0"
+                  className="bg-primary hover:bg-primary/90 text-white rounded-full px-6 shadow-none"
                 >
                   Ir al Cotizador
                 </Button>
@@ -252,11 +252,11 @@ export default function DashboardPage() {
                   <button
                     key={order.id}
                     onClick={() => setSelectedOrder(order)}
-                    className="glass rounded-xl p-5 text-left hover:bg-white/[0.04] transition-all duration-300 group border border-transparent hover:border-white/10"
+                    className="bg-card rounded-2xl p-5 text-left hover:scale-[1.01] transition-all duration-200 group apple-shadow hover:apple-shadow-lg"
                   >
                     <div className="flex items-start gap-4">
                       {/* Thumbnail */}
-                      <div className="w-16 h-16 rounded-lg bg-white/5 flex-shrink-0 overflow-hidden">
+                      <div className="w-16 h-16 rounded-xl bg-accent flex-shrink-0 overflow-hidden">
                         {order.thumbnailUrl ? (
                           <img src={order.thumbnailUrl} alt="" className="w-full h-full object-cover" />
                         ) : (
@@ -266,15 +266,15 @@ export default function DashboardPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate mb-1">{order.fileName}</p>
+                        <p className="text-sm font-semibold truncate mb-1 text-foreground">{order.fileName}</p>
                         <p className="text-xs text-muted-foreground mb-2">
                           Ref: {order.reference}
                         </p>
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs px-2 py-0.5 rounded-full border ${STATUS_COLORS[order.status] || "bg-white/10 text-muted-foreground"}`}>
+                          <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${STATUS_COLORS[order.status] || "bg-accent text-muted-foreground"}`}>
                             {order.status}
                           </span>
-                          <span className="text-sm font-bold gradient-text">
+                          <span className="text-sm font-bold text-primary">
                             {formatCOP(order.totalPrice)}
                           </span>
                         </div>
