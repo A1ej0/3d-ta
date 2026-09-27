@@ -87,6 +87,13 @@ export default function Navbar() {
                 {link.label}
               </button>
             ))}
+            <Link
+              href="/ideas"
+              className="px-3 py-1.5 text-xs font-semibold text-primary bg-primary/[0.08] hover:bg-primary/[0.14] transition-colors rounded-full border border-primary/20 flex items-center gap-1 whitespace-nowrap"
+            >
+              <span>✦</span>
+              <span>Ideas</span>
+            </Link>
           </div>
 
           {/* Auth Section - Right */}
@@ -225,6 +232,14 @@ export default function Navbar() {
                       {link.label}
                     </button>
                   ))}
+                  <Link
+                    href="/ideas"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-primary bg-primary/[0.08] rounded-xl transition-colors hover:bg-primary/[0.14] whitespace-nowrap"
+                  >
+                    <span>✦</span>
+                    <span>Ideas</span>
+                  </Link>
                   <Button
                     onClick={() => handleNavClick("#cotizador")}
                     className="mt-4 bg-primary hover:bg-primary/90 text-white rounded-2xl h-11 shadow-none"
