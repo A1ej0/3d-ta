@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 function LithophaneModel({ imageSrc, shape }: { imageSrc: string; shape: "plana" | "curva" }) {
   const texture = useTexture(imageSrc);
-  const aspect = texture.image ? texture.image.width / texture.image.height : 1;
+  const aspect = texture.image ? (texture.image as any).width / (texture.image as any).height : 1;
   const width = 5;
   const height = 5 / aspect;
 
