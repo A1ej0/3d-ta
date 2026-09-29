@@ -89,10 +89,10 @@ export default function Navbar() {
             ))}
             <Link
               href="/ideas"
-              className="px-3 py-1.5 text-xs font-semibold text-primary bg-primary/[0.08] hover:bg-primary/[0.14] transition-colors rounded-full border border-primary/20 flex items-center gap-1 whitespace-nowrap"
+              className="px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 transition-all duration-300 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.4)] hover:shadow-[0_0_20px_rgba(168,85,247,0.6)] hover:-translate-y-0.5 flex items-center gap-1.5 whitespace-nowrap"
             >
-              <span>✦</span>
-              <span>Ideas</span>
+              <span className="animate-pulse">✨</span>
+              <span>Descubrir Ideas</span>
             </Link>
           </div>
 
@@ -235,10 +235,10 @@ export default function Navbar() {
                   <Link
                     href="/ideas"
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 px-4 py-3 text-sm font-semibold text-primary bg-primary/[0.08] rounded-xl transition-colors hover:bg-primary/[0.14] whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-3 mt-1 text-sm font-bold text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-400 hover:via-purple-400 hover:to-pink-400 transition-all duration-300 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.4)] whitespace-nowrap"
                   >
-                    <span>✦</span>
-                    <span>Ideas</span>
+                    <span className="animate-pulse">✨</span>
+                    <span>Descubrir Ideas</span>
                   </Link>
                   <Button
                     onClick={() => handleNavClick("#cotizador")}
