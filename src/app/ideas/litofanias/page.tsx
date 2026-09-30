@@ -82,25 +82,53 @@ export default function LitofaniasPage() {
   const phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "573001234567";
 
   return (
-    <main className="min-h-screen pt-24 pb-20 bg-background">
+    <main className="min-h-screen pb-20 bg-background">
+      {/* Banner Hero */}
+      <div className="relative pt-40 pb-28 lg:pt-48 lg:pb-36 mb-8 overflow-hidden">
+        {/* Background Video Container */}
+        <div className="absolute inset-0 flex items-center justify-end pointer-events-none">
+          <div className="relative w-full md:w-[50%] lg:w-[45%] h-full">
+            <video 
+              autoPlay 
+              loop 
+              muted 
+              playsInline 
+              className="w-full h-full object-cover"
+            >
+              <source src="/Banner.mp4" type="video/mp4" />
+            </video>
+            
+            {/* Gradients to seamlessly blend the video edges into the background */}
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-background to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-background to-transparent" />
+            <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-background to-transparent" />
+          </div>
+        </div>
+        
+        {/* Soft overlay primarily on the left to ensure text legibility */}
+        <div className="absolute inset-y-0 left-0 w-full md:w-2/3 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
+
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+            <Link href="/ideas" className="hover:text-primary transition-colors">Ideas</Link>
+            <span>/</span>
+            <span className="text-foreground font-medium">Litofanías 3D</span>
+          </div>
+
+          {/* Header */}
+          <div className="animate-slide-up">
+            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-foreground">
+              Fotografías a <span className="text-primary">Litofanías 3D</span>
+            </h1>
+            <p className="text-foreground/90 text-lg max-w-2xl leading-relaxed">
+              Sube tu foto favorita y visualiza cómo se verá convertida en una pieza de plástico que revela la imagen al ser iluminada por detrás.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
-          <Link href="/ideas" className="hover:text-primary transition-colors">Ideas</Link>
-          <span>/</span>
-          <span className="text-foreground font-medium">Litofanías 3D</span>
-        </div>
-
-        {/* Header */}
-        <div className="mb-12 animate-slide-up">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4 text-foreground">
-            Fotografías a <span className="text-primary">Litofanías 3D</span>
-          </h1>
-          <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
-            Sube tu foto favorita y visualiza cómo se verá convertida en una pieza de plástico que revela la imagen al ser iluminada por detrás.
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left: Controls */}
           <div className="space-y-6 animate-slide-up" style={{ animationDelay: "0.1s" }}>
