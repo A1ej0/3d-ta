@@ -1,7 +1,7 @@
 // ===== Pricing Types =====
 export type Technology = "FDM" | "SLA";
 
-export type FDMMaterial = "PLA" | "ABS" | "PETG";
+export type FDMMaterial = "PLA" | "ABS" | "PETG" | "TPU";
 export type SLAMaterial = "STANDARD" | "TOUGH";
 export type Material = FDMMaterial | SLAMaterial;
 

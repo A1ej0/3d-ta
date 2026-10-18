@@ -12,7 +12,7 @@ const SERVICES = [
         <line x1="12" y1="22.08" x2="12" y2="12"/>
       </svg>
     ),
-    features: ["PLA, ABS, PETG", "Resinas estándar y tenaz", "Hasta 300mm"],
+    features: ["PLA, ABS, PETG, TPU", "Resinas estándar y tenaz", "Hasta 300mm"],
   },
   {
     title: "Modelado 3D",

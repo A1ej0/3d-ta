@@ -9,27 +9,33 @@ export const PRICING: PricingConfig = {
       color: "#22d3ee",
     },
     ABS: {
-      pricePerCm3: 560,
+      pricePerCm3: 500,
       label: "ABS",
       description: "Alta resistencia térmica y mecánica. Perfecto para piezas funcionales.",
       color: "#f97316",
     },
     PETG: {
-      pricePerCm3: 640,
+      pricePerCm3: 450,
       label: "PETG",
       description: "Combinación de resistencia y flexibilidad. Excelente para uso exterior.",
+      color: "#a78bfa",
+    },
+    TPU: {
+      pricePerCm3: 700,
+      label: "TPU",
+      description: "Elastomérico, flexible y resistente al desgaste. Ideal para fundas, juntas, correas y piezas que requieran absorción de impactos y flexión.",
       color: "#a78bfa",
     },
   },
   SLA: {
     STANDARD: {
-      pricePerCm3: 1400,
+      pricePerCm3: 1000,
       label: "Resina Estándar",
       description: "Altísima precisión y acabado suave. Ideal para joyería y miniaturas.",
       color: "#34d399",
     },
     TOUGH: {
-      pricePerCm3: 2000,
+      pricePerCm3: 1500,
       label: "Resina Tenaz",
       description: "Resistente a impactos. Para piezas funcionales de alta calidad.",
       color: "#fb7185",
@@ -86,7 +92,7 @@ export function fitsInPrinter(
   if (!dimensions) return true;
 
   const pieceDims = [dimensions.x, dimensions.y, dimensions.z].sort((a, b) => a - b);
-  
+
   const printer = PRINTER_VOLUMES[technology];
   const printerDims = [printer.x, printer.y, printer.z].sort((a, b) => a - b);
 
