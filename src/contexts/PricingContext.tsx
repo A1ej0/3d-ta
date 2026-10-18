@@ -36,7 +36,18 @@ export function PricingProvider({ children }: { children: React.ReactNode }) {
         if (res.ok) {
           const data = await res.json();
           if (data.exists) {
-            if (data.pricing) setPricing(data.pricing);
+            if (data.pricing) {
+              setPricing({
+                FDM: {
+                  ...DEFAULT_PRICING.FDM,
+                  ...(data.pricing.FDM || {}),
+                },
+                SLA: {
+                  ...DEFAULT_PRICING.SLA,
+                  ...(data.pricing.SLA || {}),
+                },
+              });
+            }
             if (data.shippingCosts) setShippingCosts(data.shippingCosts as Record<string, ShippingInfo>);
             if (data.minOrderPrice !== undefined) setMinOrderPrice(data.minOrderPrice);
           }

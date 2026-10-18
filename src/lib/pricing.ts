@@ -24,7 +24,7 @@ export const PRICING: PricingConfig = {
       pricePerCm3: 700,
       label: "TPU",
       description: "Elastomérico, flexible y resistente al desgaste. Ideal para fundas, juntas, correas y piezas que requieran absorción de impactos y flexión.",
-      color: "#a78bfa",
+      color: "#52d45fff",
     },
   },
   SLA: {
@@ -75,7 +75,7 @@ export function calculateTotalPrice(
 export const MIN_ORDER_PRICE = 20000; // Minimum order price in COP ($20,000)
 
 export const PRINTER_VOLUMES = {
-  FDM: { x: 220, y: 220, z: 250 },
+  FDM: { x: 256, y: 256, z: 256 },
   SLA: { x: 153.4, y: 87, z: 165 },
 };
 

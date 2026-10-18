@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PRICING } from "@/lib/pricing";
 import { generateIntegritySignature, generateReference } from "@/lib/wompi";
 import type { Technology } from "@/types";
-import { restSetDocument, restUpdateDocument } from "@/lib/firebase-rest";
+import { restGetDocument, restSetDocument, restUpdateDocument } from "@/lib/firebase-rest";
 
 export async function POST(request: Request) {
   try {
@@ -54,10 +54,20 @@ export async function POST(request: Request) {
     } as any;
 
     try {
-      const { restGetDocument } = await import("@/lib/firebase-rest");
       const settings = await restGetDocument("settings", "pricing");
       if (settings) {
-        if (settings.pricing) dynamicPricing = settings.pricing;
+        if (settings.pricing) {
+          dynamicPricing = {
+            FDM: {
+              ...PRICING.FDM,
+              ...(settings.pricing.FDM || {}),
+            },
+            SLA: {
+              ...PRICING.SLA,
+              ...(settings.pricing.SLA || {}),
+            },
+          };
+        }
         if (settings.minOrderPrice !== undefined) dynamicMinOrder = settings.minOrderPrice;
         if (settings.shippingCosts) dynamicShipping = settings.shippingCosts;
       }
