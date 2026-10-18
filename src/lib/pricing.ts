@@ -79,28 +79,99 @@ export const PRINTER_VOLUMES = {
   SLA: { x: 153.4, y: 87, z: 165 },
 };
 
+function rectFitsInRect(a: number, b: number, W: number, H: number): boolean {
+  if ((a <= W && b <= H) || (a <= H && b <= W)) return true;
+  if (a * a + b * b > W * W + H * H) return false;
+
+  for (let deg = 1; deg < 90; deg += 1) {
+    const rad = (deg * Math.PI) / 180;
+    const c = Math.cos(rad);
+    const s = Math.sin(rad);
+    const w = a * c + b * s;
+    const h = a * s + b * c;
+    if ((w <= W && h <= H) || (w <= H && h <= W)) return true;
+  }
+  return false;
+}
+
+function fitsPlanar(d1: number, d2: number, d3: number, Px: number, Py: number, Pz: number): boolean {
+  if (d3 <= Pz && rectFitsInRect(d1, d2, Px, Py)) return true;
+  if (d2 <= Pz && rectFitsInRect(d1, d3, Px, Py)) return true;
+  if (d1 <= Pz && rectFitsInRect(d2, d3, Px, Py)) return true;
+  return false;
+}
+
 /**
- * Verifica si una pieza cabe dentro de una impresora, asumiendo que la pieza puede ser rotada
- * en incrementos de 90 grados para encontrar el mejor ajuste. 
- * Para simplificar, ordenamos las dimensiones de la pieza y las de la impresora de menor a mayor
- * y comprobamos que cada dimensión de la pieza sea menor a su contraparte en la impresora.
+ * Verifica si una pieza cabe dentro de una impresora, considerando rotaciones
+ * ortogonales (90°), rotación plana sobre la cama (diagonal 2D), o inclinación en 3D.
  */
 export function fitsInPrinter(
   dimensions: { x: number; y: number; z: number } | null,
   technology: "FDM" | "SLA"
 ): boolean {
-  if (!dimensions) return true;
+  if (!dimensions || !dimensions.x || !dimensions.y || !dimensions.z) return true;
 
-  const pieceDims = [dimensions.x, dimensions.y, dimensions.z].sort((a, b) => a - b);
+  const dx = dimensions.x;
+  const dy = dimensions.y;
+  const dz = dimensions.z;
 
   const printer = PRINTER_VOLUMES[technology];
-  const printerDims = [printer.x, printer.y, printer.z].sort((a, b) => a - b);
+  const Px = printer.x;
+  const Py = printer.y;
+  const Pz = printer.z;
 
-  return (
-    pieceDims[0] <= printerDims[0] &&
-    pieceDims[1] <= printerDims[1] &&
-    pieceDims[2] <= printerDims[2]
-  );
+  // 1. Comprobación rápida ortogonal (rotación básica de 90°)
+  const pSorted = [dx, dy, dz].sort((a, b) => a - b);
+  const bSorted = [Px, Py, Pz].sort((a, b) => a - b);
+  if (pSorted[0] <= bSorted[0] && pSorted[1] <= bSorted[1] && pSorted[2] <= bSorted[2]) {
+    return true;
+  }
+
+  // 2. Comprobación de límite de diagonal 3D
+  const pieceDiagSq = dx * dx + dy * dy + dz * dz;
+  const printerDiagSq = Px * Px + Py * Py + Pz * Pz;
+  if (pieceDiagSq > printerDiagSq + 0.01) {
+    return false;
+  }
+
+  // 3. Rotación en el plano de la cama (diagonal 2D de la base)
+  if (fitsPlanar(dx, dy, dz, Px, Py, Pz)) return true;
+  if (fitsPlanar(dx, dy, dz, Py, Pz, Px)) return true;
+  if (fitsPlanar(dx, dy, dz, Pz, Px, Py)) return true;
+
+  // 4. Búsqueda de rotación tridimensional (inclinación 3D)
+  for (let pitch = 0; pitch <= 90; pitch += 3) {
+    const pRad = (pitch * Math.PI) / 180;
+    const cp = Math.cos(pRad), sp = Math.sin(pRad);
+    for (let roll = 0; roll <= 90; roll += 3) {
+      const rRad = (roll * Math.PI) / 180;
+      const cr = Math.cos(rRad), sr = Math.sin(rRad);
+      for (let yaw = 0; yaw <= 90; yaw += 3) {
+        const yRad = (yaw * Math.PI) / 180;
+        const cy = Math.cos(yRad), sy = Math.sin(yRad);
+
+        const r00 = Math.abs(cy * cp);
+        const r01 = Math.abs(cy * sp * sr - sy * cr);
+        const r02 = Math.abs(cy * sp * cr + sy * sr);
+
+        const r10 = Math.abs(sy * cp);
+        const r11 = Math.abs(sy * sp * sr + cy * cr);
+        const r12 = Math.abs(sy * sp * cr - cy * sr);
+
+        const r20 = Math.abs(-sp);
+        const r21 = Math.abs(cp * sr);
+        const r22 = Math.abs(cp * cr);
+
+        const ex = r00 * dx + r01 * dy + r02 * dz;
+        const ey = r10 * dx + r11 * dy + r12 * dz;
+        const ez = r20 * dx + r21 * dy + r22 * dz;
+
+        if (ex <= Px && ey <= Py && ez <= Pz) return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 /**
