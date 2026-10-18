@@ -4,9 +4,9 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
 // Duplicamos las imágenes para lograr un scroll infinito fluido
-const BASE_IMAGES = Array.from({ length: 15 }, (_, i) => ({
+const BASE_IMAGES = Array.from({ length: 34 }, (_, i) => ({
   id: `work-${i + 1}`,
-  src: `/gallery/work-${String((i % 20) + 1).padStart(2, "0")}.jpg`,
+  src: `/gallery/work-${String(i + 1).padStart(2, "0")}.jpg`,
   alt: `Trabajo de impresión 3D #${i + 1}`,
 }));
 

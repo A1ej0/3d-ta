@@ -46,3 +46,6 @@ next-env.d.ts
 
 # docs
 documentacion/
+
+# backups
+public/gallery_originals/
